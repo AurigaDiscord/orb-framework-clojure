@@ -1,4 +1,4 @@
-(defproject orb-framework "0.1.0"
+(defproject orb-framework "0.1.1"
   :description "Auriga orb framework"
   :url "https://github.com/AurigaDiscord/orb-framework-clojure"
   :license {:name "The MIT License"
