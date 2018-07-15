@@ -1,12 +1,16 @@
 (ns orb-framework.core
-  (:require [taoensso.timbre   :as log]
-            [environ.core      :refer [env]]
-            [langohr.core      :as rmq]
-            [langohr.channel   :as lch]
-            [langohr.queue     :as lq]
-            [langohr.consumers :as lc]
-            [langohr.basic     :as lb]
-            [clojure.data.json :as json]))
+  (:require [taoensso.timbre       :as log]
+            [clojure.core.async    :refer [go]]
+            [environ.core          :refer [env]]
+            [langohr.core          :as rmq]
+            [langohr.channel       :as lch]
+            [langohr.queue         :as lq]
+            [langohr.consumers     :as lc]
+            [langohr.basic         :as lb]
+            [clojure.data.json     :as json]
+            [orb-framework.metrics :as metrics]))
+
+(log/set-level! :info)
 
 (def config (atom {}))
 
@@ -31,7 +35,8 @@
     (run name handler "auriga"))
   ([name handler amqp-prefix]
     (load-config-from-env amqp-prefix)
-    (log/info (format "Starting %s orb." name))
+    (log/infof "Starting %s orb." name)
+    (go (metrics/start))
     (let [conn  (rmq/connect (rmq/settings-from (@config :amqp-path)))
           ch    (lch/open conn)
           qname (@config :amqp-queue-incoming)]
